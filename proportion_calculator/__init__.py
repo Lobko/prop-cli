@@ -1,5 +1,5 @@
 # ============================================
 # File: proportion_calculator/__init__.py
 # ============================================
-"""Calcolatore di proporzioni."""
+"""Proportion calculator."""
 __version__ = "1.0.0"
