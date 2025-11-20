@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prop-cli"
+version = "1.0.0"
+description = "A simple command-line proportion solver (rule of three)"
+authors = [
+    { name = "Domenico Bruno \"Lobkowitz\"", email = "blobkowitz@gmail.com" }
+]
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+prop-cli = "proportion_calculator.cli:main"
