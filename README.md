@@ -31,6 +31,29 @@ This installs the command:
 prop-cli
 ```
 
+### Installing from source (local clone)
+
+If you clone this repository manually:
+
+```
+git clone https://github.com/Lobko/prop-cli
+cd prop-cli
+```
+
+You can install the package locally with:
+
+```
+pip install .
+```
+
+Or, if you want to install it in development/editable mode:
+
+```
+pip install -e .
+```
+
+This allows you to modify the source code and use the `prop-cli` command immediately without rebuilding the package.
+
 ---
 
 ## Usage
