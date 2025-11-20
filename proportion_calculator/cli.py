@@ -11,19 +11,29 @@ def fmt(value: float) -> str:
     return s if s != "-0" else "0"
 
 
-def solve_proportion(a_str: str, b_str: str, c_str: str, d_str: str) -> Optional[float]:
+def solve_proportion(
+    a_str: str,
+    b_str: str,
+    c_str: str,
+    d_str: str
+) -> Optional[float]:
     """
     Solves a proportion a:b = c:d given as strings.
     One of the four values must be 'x'.
     """
+
     terms = [a_str, b_str, c_str, d_str]
 
     # Find position of the unknown 'x'
-    x_positions = [i for i, term in enumerate(terms) if term.lower() == "x"]
+    x_positions = [
+        i for i, term in enumerate(terms)
+        if term.lower() == "x"
+    ]
 
     if len(x_positions) == 0:
         print("Error: No 'x' found. One term must be the unknown.")
         return None
+
     if len(x_positions) > 1:
         print("Error: Only one unknown 'x' is allowed.")
         return None
@@ -32,7 +42,10 @@ def solve_proportion(a_str: str, b_str: str, c_str: str, d_str: str) -> Optional
 
     try:
         # Convert numeric values
-        a, b, c, d = [None if i == x_pos else float(term) for i, term in enumerate(terms)]
+        a, b, c, d = [
+            None if i == x_pos else float(term)
+            for i, term in enumerate(terms)
+        ]
 
         # Compute depending on the unknown position
         if x_pos == 0:
@@ -40,16 +53,19 @@ def solve_proportion(a_str: str, b_str: str, c_str: str, d_str: str) -> Optional
                 print("Error: Division by zero (d = 0).")
                 return None
             x = (b * c) / d
+
         elif x_pos == 1:
             if c == 0:
                 print("Error: Division by zero (c = 0).")
                 return None
             x = (a * d) / c
+
         elif x_pos == 2:
             if b == 0:
                 print("Error: Division by zero (b = 0).")
                 return None
             x = (a * d) / b
+
         else:  # x_pos == 3
             if a == 0:
                 print("Error: Division by zero (a = 0).")
@@ -59,7 +75,11 @@ def solve_proportion(a_str: str, b_str: str, c_str: str, d_str: str) -> Optional
         result = [a, b, c, d]
         result[x_pos] = x
 
-        print(f"Proportion: {fmt(result[0])}:{fmt(result[1])} = {fmt(result[2])}:{fmt(result[3])}")
+        print(
+            "Proportion: "
+            f"{fmt(result[0])}:{fmt(result[1])} = "
+            f"{fmt(result[2])}:{fmt(result[3])}"
+        )
         print(f"x = {fmt(x)}")
 
         return x
@@ -81,7 +101,13 @@ def main() -> int:
         print_usage()
         return 1
 
-    result = solve_proportion(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    result = solve_proportion(
+        sys.argv[1],
+        sys.argv[2],
+        sys.argv[3],
+        sys.argv[4]
+    )
+
     return 0 if result is not None else 1
 
 
