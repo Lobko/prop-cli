@@ -1,5 +1,3 @@
-# ============================================
-# File: proportion_calculator/__init__.py
-# ============================================
-"""Proportion calculator."""
-__version__ = "1.0.2"
+"""prop-cli: solve proportions a:b = c:d with the rule of three."""
+
+__version__ = "1.1.0"

@@ -1,58 +1,56 @@
 # prop-cli
 
 [![PyPI version](https://img.shields.io/pypi/v/prop-cli)](https://pypi.org/project/prop-cli/)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python Version](https://img.shields.io/pypi/pyversions/prop-cli)
-![Downloads](https://img.shields.io/pypi/dm/prop-cli)
-![Tests](https://github.com/Lobko/prop-cli/actions/workflows/test.yml/badge.svg)
-![Lint](https://github.com/Lobko/prop-cli/actions/workflows/lint.yml/badge.svg)
-![Build](https://github.com/Lobko/prop-cli/actions/workflows/build.yml/badge.svg)
+[![Python Version](https://img.shields.io/pypi/pyversions/prop-cli)](https://pypi.org/project/prop-cli/)
+[![License](https://img.shields.io/pypi/l/prop-cli)](https://github.com/Lobko/prop-cli/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/pypi/dm/prop-cli)](https://pypi.org/project/prop-cli/)
+[![Tests](https://github.com/Lobko/prop-cli/actions/workflows/test.yml/badge.svg)](https://github.com/Lobko/prop-cli/actions/workflows/test.yml)
+[![Lint](https://github.com/Lobko/prop-cli/actions/workflows/lint.yml/badge.svg)](https://github.com/Lobko/prop-cli/actions/workflows/lint.yml)
+[![Build](https://github.com/Lobko/prop-cli/actions/workflows/build.yml/badge.svg)](https://github.com/Lobko/prop-cli/actions/workflows/build.yml)
 
-A command-line tool that solves proportions of the form:
+A small command-line tool that solves proportions of the form
 
 ```
 a : b = c : d
 ```
 
-where one term is unknown (`x`).  
-The tool uses classic **cross-multiplication**, also known as the **rule of three**.
+where one of the four terms is the unknown `x`.
+It uses classic **cross-multiplication**, also known as the **rule of three**.
+
+```
+$ prop-cli 10 12 x 30
+Proportion: 10:12 = 25:30
+x = 25
+```
 
 ---
 
 ## Installation
 
+Requires Python 3.10 or newer. No other dependencies.
+
 ```
 pip install prop-cli
 ```
 
-This installs the command:
+or, to keep it isolated from your other Python packages:
 
 ```
-prop-cli
+pipx install prop-cli
 ```
 
-### Installing from source (local clone)
+Both install the `prop-cli` command.
 
-If you clone this repository manually:
+### Installing from source
 
 ```
 git clone https://github.com/Lobko/prop-cli
 cd prop-cli
-```
-
-You can install the package locally with:
-
-```
 pip install .
 ```
 
-Or, if you want to install it in development/editable mode:
-
-```
-pip install -e .
-```
-
-This allows you to modify the source code and use the `prop-cli` command immediately without rebuilding the package.
+Use `pip install -e .` instead for an editable (development) install, so changes
+to the source code take effect immediately without reinstalling.
 
 ---
 
@@ -60,153 +58,170 @@ This allows you to modify the source code and use the `prop-cli` command immedia
 
 ```
 prop-cli <a> <b> <c> <d>
+prop-cli --help       # or -h
+prop-cli --version    # or -V
 ```
 
-Example:
+Write `x` (or `X`) for the unknown term. It can be in any position:
 
 ```
-prop-cli 10 12 x 30
+prop-cli x 5 6 12       # x = 2.5
+prop-cli 2 x 4 8        # x = 4
+prop-cli 10 12 x 30     # x = 25
+prop-cli 4 5 0.1 x      # x = 0.125
 ```
 
-Output:
-
-```
-Proportion: 10:12 = 25:30
-x = 25
-```
-
-You can place `x` in any position:
-
-```
-prop-cli x 5  6  12
-prop-cli 2 x  4   8
-prop-cli 3 9  x  27
-prop-cli 4 5 0.1  x
-```
-
----
-
-## More Examples
+More examples:
 
 ```
 prop-cli 5 20 x 120     # x = 30
 prop-cli x 4 12 48      # x = 1
-prop-cli 3 x  9 15      # x = 5
+prop-cli 3 x 9 15       # x = 5
+prop-cli -4 2 x 3       # x = -6   (negative numbers work)
+prop-cli 1e3 2 x 4      # x = 2000 (so does scientific notation)
 ```
 
-### Edge cases (real ones)
+Results are shown in plain decimal notation (never `1e-05`), rounded to
+15 significant digits, so tiny floating-point errors disappear:
 
 ```
-prop-cli 1 x 0 5        # division by zero (c = 0)
-prop-cli x 0 3 2        # division by zero (b = 0)
-prop-cli 1 2 3 x        # valid
+prop-cli 1 3 x 1        # x = 0.333333333333333
+prop-cli 0.1 1 x 3      # x = 0.3
+```
+
+### Errors and exit codes
+
+Error messages are printed to **stderr**, so they don't mix with the result if
+you redirect or pipe the output.
+
+| Exit code | Meaning                                              |
+|-----------|------------------------------------------------------|
+| `0`       | Success (also for `--help` and `--version`)          |
+| `1`       | The input is not a solvable proportion (see below)   |
+| `2`       | Wrong number of arguments (the usage text is shown)  |
+
+Inputs that are rejected:
+
+```
+prop-cli 1 2 3 4        # no 'x'
+prop-cli x x 3 4        # more than one 'x'
+prop-cli x abc 3 4      # not a number
+prop-cli x 1 inf 4      # infinity / nan are not allowed
+prop-cli x 0 3 2        # b = 0: a ratio like a:0 is undefined
+prop-cli 1 2 x 0        # d = 0: same reason
+prop-cli 1 x 0 5        # c = 0: no unique solution (division by zero)
+prop-cli 0 2 3 x        # a = 0: no unique solution (division by zero)
 ```
 
 ---
 
 ## How cross-multiplication works
 
-Given the proportion:
+A proportion says that two ratios are equal:
 
 ```
-a : b = c : d
+a     c
+─  =  ─
+b     d
 ```
 
-Rule:
+In `a : b = c : d`, the outer terms `a` and `d` are called the **extremes**
+and the inner terms `b` and `c` are the **means**:
+
+```
+    ┌──── extremes ─────┐
+    a  :  b   =   c  :  d
+          └─means─┘
+```
+
+**Rule:** the product of the extremes equals the product of the means.
 
 ```
 a × d = b × c
 ```
 
-### Diagram (horizontal)
+Solving this equation for the unknown gives one formula per position:
+
+| Unknown | Proportion      | Formula             |
+|---------|-----------------|---------------------|
+| `a`     | `x : b = c : d` | `x = (b × c) / d`   |
+| `b`     | `a : x = c : d` | `x = (a × d) / c`   |
+| `c`     | `a : b = x : d` | `x = (a × d) / b`   |
+| `d`     | `a : b = c : x` | `x = (b × c) / a`   |
+
+Worked example, `10 : 12 = x : 30`:
 
 ```
-       a : b = c : d
-         |       |
-         |       |
-         +---+---+
-             |
-   Cross-multiplication
-             |
-       a × d = b × c
-```
-
-### Diagram (vertical rule-of-three)
-
-```
-     a      c
-     ─── = ───
-     b      d
-
-Cross multiply:
-
-a × d = b × c
+x = (10 × 30) / 12 = 300 / 12 = 25
 ```
 
 ---
 
-## Solving when the unknown is in different positions
+## Using it from Python
 
-### Unknown in second position
+The solver can also be imported:
 
-```
-a : x = c : d
-a × d = x × c
-x = (a × d) / c
-```
+```python
+from proportion_calculator.cli import ProportionError, solve
 
-### Unknown in fourth position
+solve(["10", "12", "x", "30"])   # -> [10.0, 12.0, 25.0, 30.0]
 
-```
-a : b = c : x
-a × x = b × c
-x = (b × c) / a
+try:
+    solve(["x", "0", "3", "2"])
+except ProportionError as error:
+    print(error)                  # b cannot be 0: ...
 ```
 
 ---
 
-## Error handling
+## Development
 
-- Exactly one unknown `x` is required  
-- Other terms must be numeric  
-- Division by zero is detected and reported  
-- Scientific notation is avoided in output  
+```
+git clone https://github.com/Lobko/prop-cli
+cd prop-cli
+pip install -e . pytest flake8
 
----
+pytest                                # run the tests
+flake8 proportion_calculator tests    # run the linter
+```
 
-## Project structure
+The version number is kept only in `proportion_calculator/__init__.py`.
+The packaging reads it from there.
+
+GitHub Actions runs the tests on Python 3.10–3.14, plus the linter and a
+package build check, on every push and pull request.
+
+### Project structure
 
 ```
 prop-cli/
-├── pyproject.toml
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── VERSION
+├── proportion_calculator/
+│   ├── __init__.py        # package version
+│   └── cli.py             # solver and command-line interface
 ├── tests/
-│   └── test_basic.py
-├── .github/
-│   └── workflows/
-│       ├── test.yml
-│       ├── lint.yml
-│       └── build.yml
-└── proportion_calculator/
-    ├── cli.py
-    └── __init__.py
+│   └── test_cli.py
+├── .github/workflows/
+│   ├── test.yml
+│   ├── lint.yml
+│   └── build.yml
+├── pyproject.toml
+├── CHANGELOG.md
+├── LICENSE
+└── README.md
 ```
 
 ---
 
 ## Contributing
 
-1. Fork the repository  
-2. Create a feature branch  
-3. Commit your changes  
-4. Push the branch  
-5. Open a Pull Request  
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes (with tests)
+4. Push the branch
+5. Open a Pull Request
 
 ---
 
 ## License
 
-MIT License
+[MIT](https://github.com/Lobko/prop-cli/blob/main/LICENSE) © Domenico Bruno "Lobkowitz"

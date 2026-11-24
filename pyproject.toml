@@ -1,20 +1,50 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "prop-cli"
-version = "1.0.2"
+dynamic = ["version"]
 description = "A command-line tool to solve proportions using the rule of three"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Domenico Bruno \"Lobkowitz\"", email = "blobkowitz@gmail.com" }
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.10"
+keywords = ["proportion", "rule of three", "cross-multiplication", "math", "cli"]
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Intended Audience :: End Users/Desktop",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Utilities",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Lobko/prop-cli"
+Issues = "https://github.com/Lobko/prop-cli/issues"
+Changelog = "https://github.com/Lobko/prop-cli/blob/main/CHANGELOG.md"
 
 [project.scripts]
 prop-cli = "proportion_calculator.cli:main"
+
+[tool.setuptools]
+packages = ["proportion_calculator"]
+
+[tool.setuptools.dynamic]
+version = { attr = "proportion_calculator.__version__" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "proportion_calculator"]
+addopts = "--doctest-modules"

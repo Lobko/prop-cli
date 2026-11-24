@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install build tools
         run: pip install build twine
@@ -23,4 +23,10 @@ jobs:
         run: python -m build
 
       - name: Validate with Twine
-        run: twine check dist/*
+        run: twine check --strict dist/*
+
+      - name: Smoke-test the built wheel
+        run: |
+          pip install dist/*.whl
+          prop-cli --version
+          prop-cli 10 12 x 30
